@@ -334,6 +334,82 @@ new Foo(1, () => {});
         },
       ],
     },
+    {
+      filename: 'test.ts',
+      code: `
+function test(
+  a: number,
+  b: number,
+) {
+  return;
+}
+      `,
+      options: [
+        {
+          ignoreUnexportedFunctions: true,
+        },
+      ],
+    },
+    {
+      filename: 'test.ts',
+      code: `
+export var arrowFn = (): string => 'test';
+var fn = function() {
+  return 1;
+};
+      `,
+      options: [
+        {
+          ignoreUnexportedFunctions: true,
+        },
+      ],
+    },
+    {
+      filename: 'test.ts',
+      code: `
+class Test {
+  constructor() {}
+  get prop() {
+      return 1;
+  }
+  set prop() {}
+  method() {
+    return;
+  }
+  arrow = () => 'arrow';
+  private method() {
+    return;
+  }
+}
+      `,
+      options: [
+        {
+          ignoreUnexportedFunctions: true,
+        },
+      ],
+    },
+    {
+      filename: 'test.ts',
+      code: `
+function viaDoubleVariableReference() {}
+const variableRefOne = viaDoubleVariableReference;
+export const variableRefTwo = variableRefOne;
+      `,
+      options: [
+        {
+          ignoreUnexportedFunctions: true,
+        },
+      ],
+    },
+    {
+      filename: 'test.ts',
+      code: `export default (): void => {}`,
+      options: [
+        {
+          ignoreUnexportedFunctions: true,
+        },
+      ],
+    },
   ],
   invalid: [
     {
@@ -977,6 +1053,100 @@ const func = (value: number) => ({ type: "X", value } as const);
           endLine: 2,
           column: 14,
           endColumn: 32,
+        },
+      ],
+    },
+    {
+      filename: 'test.ts',
+      code: `
+export function test(
+  a: number,
+  b: number,
+) {
+  return;
+}
+      `,
+      options: [
+        {
+          ignoreUnexportedFunctions: true,
+        },
+      ],
+      errors: [
+        {
+          messageId: 'missingReturnType',
+          line: 2,
+          endLine: 5,
+          column: 8,
+          endColumn: 2,
+        },
+      ],
+    },
+    {
+      filename: 'test.ts',
+      code: `
+export var fn = function() {
+  return 1;
+};
+      `,
+      options: [
+        {
+          ignoreUnexportedFunctions: false,
+        },
+      ],
+      errors: [
+        {
+          messageId: 'missingReturnType',
+          line: 2,
+          endLine: 2,
+          column: 17,
+          endColumn: 27,
+        },
+      ],
+    },
+    {
+      filename: 'test.ts',
+      code: `
+export class Test {
+  constructor() {}
+  get prop() {
+      return 1;
+  }
+  set prop() {}
+  method() {
+    return;
+  }
+  arrow = (): string => 'arrow';
+  private method() {
+    return;
+  }
+}
+      `,
+      options: [
+        {
+          ignoreUnexportedFunctions: false,
+        },
+      ],
+      errors: [
+        {
+          messageId: 'missingReturnType',
+          line: 4,
+          endLine: 4,
+          column: 3,
+          endColumn: 13,
+        },
+        {
+          messageId: 'missingReturnType',
+          line: 8,
+          endLine: 8,
+          column: 3,
+          endColumn: 11,
+        },
+        {
+          messageId: 'missingReturnType',
+          line: 12,
+          endLine: 12,
+          column: 3,
+          endColumn: 19,
         },
       ],
     },

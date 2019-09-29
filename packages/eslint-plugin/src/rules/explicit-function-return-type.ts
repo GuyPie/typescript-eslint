@@ -11,6 +11,7 @@ type Options = [
     allowTypedFunctionExpressions?: boolean;
     allowHigherOrderFunctions?: boolean;
     allowDirectConstAssertionInArrowFunctions?: boolean;
+    ignoreUnexportedFunctions?: boolean;
   },
 ];
 type MessageIds = 'missingReturnType';
@@ -44,6 +45,9 @@ export default util.createRule<Options, MessageIds>({
           allowDirectConstAssertionInArrowFunctions: {
             type: 'boolean',
           },
+          ignoreUnexportedFunctions: {
+            type: 'boolean',
+          },
         },
         additionalProperties: false,
       },
@@ -55,6 +59,7 @@ export default util.createRule<Options, MessageIds>({
       allowTypedFunctionExpressions: true,
       allowHigherOrderFunctions: true,
       allowDirectConstAssertionInArrowFunctions: true,
+      ignoreUnexportedFunctions: false,
     },
   ],
   create(context, [options]) {
@@ -206,6 +211,22 @@ export default util.createRule<Options, MessageIds>({
       );
     }
 
+    function isUnexported(node: TSESTree.Node | undefined): boolean {
+      while (node) {
+        if (
+          node.type === AST_NODE_TYPES.ExportDefaultDeclaration ||
+          node.type === AST_NODE_TYPES.ExportNamedDeclaration ||
+          node.type === AST_NODE_TYPES.ExportSpecifier
+        ) {
+          return false;
+        }
+
+        node = node.parent;
+      }
+
+      return true;
+    }
+
     /**
      * Checks if a function belongs to:
      * `() => () => ...`
@@ -302,6 +323,10 @@ export default util.createRule<Options, MessageIds>({
         options.allowHigherOrderFunctions &&
         doesImmediatelyReturnFunctionExpression(node)
       ) {
+        return;
+      }
+
+      if (options.ignoreUnexportedFunctions && isUnexported(node.parent)) {
         return;
       }
 

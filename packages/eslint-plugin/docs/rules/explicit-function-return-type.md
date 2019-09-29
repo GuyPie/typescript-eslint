@@ -69,6 +69,8 @@ type Options = {
   allowTypedFunctionExpressions?: boolean;
   // if true, functions immediately returning another function expression will not be checked
   allowHigherOrderFunctions?: boolean;
+  // if true, functions not directly exported will not be checked
+  ignoreUnexportedFunctions?: boolean;
 };
 
 const defaults = {
@@ -196,6 +198,28 @@ var arrowFn = () => (): void => {};
 function fn() {
   return function(): void {};
 }
+```
+
+### ignoreUnexportedFunctions
+
+Examples of **incorrect** code for this rule with `{ ignoreUnexportedFunctions: true }`:
+
+```ts
+export default () => () => {};
+
+export const arrowFn = () => {};
+
+export function fn() {
+  return function() {};
+}
+```
+
+Examples of **correct** code for this rule with `{ ignoreUnexportedFunctions: true }`:
+
+```ts
+function viaDoubleVariableReference() {}
+const variableRefOne = viaDoubleVariableReference;
+export const variableRefTwo = variableRefOne;
 ```
 
 ## When Not To Use It
